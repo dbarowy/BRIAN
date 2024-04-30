@@ -5,6 +5,10 @@ open MathNet.Numerics.LinearAlgebra
 
 [<EntryPoint>]
 let main args =
+    (* Check that input is given *)
+    if (args.Length <> 1) then
+        printfn "Usage: dotnet run <file.txt>"
+        exit 1
     let file = args[0]
     let text = IO.File.ReadAllText file
     match parse text with
