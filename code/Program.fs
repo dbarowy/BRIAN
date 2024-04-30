@@ -10,10 +10,11 @@ let main args =
     match parse text with
     | Some ast ->
         printfn "success"
-        //printfn "%A" ast
+        printfn "%A" ast
         let uniqueList = getUniqueVariableList ast
+        printfn "List of all components:" 
         printfn "%A" uniqueList
-        let M = initializeMatrix uniqueList
+        let M = initializeMatrix ast
         printfn "%A" M
         0
     | None ->

@@ -1,6 +1,6 @@
 A activates B
 B activates C
 C activates A
-C inhibits A
+C inhibits B
 D inhibits B
 A activates D

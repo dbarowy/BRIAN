@@ -34,8 +34,19 @@ let rec getVariableList (s: Sequence) : Variable list=
 let getUniqueVariableList (s: Sequence) =
     let newList = getVariableList s
     Seq.distinct newList |> List.ofSeq
-    
-let initializeMatrix (uniqueList: Variable list) =
+
+let initializeMatrix (s: Sequence) =
+    let uniqueList = getUniqueVariableList s
     let length = List.length uniqueList
-    let m = Matrix<double>.Build.Dense(length, length)
+    let mutable m = Matrix<double>.Build.Dense(length, length)
+    for relation in s do
+        match relation with
+        | Activation(v1, v2) ->  
+            let index1 = List.findIndex (fun x -> x = v1) uniqueList
+            let index2 = List.findIndex (fun x -> x = v2) uniqueList
+            m.[index1,index2] <- 1
+        | Inhibition(v1, v2) -> 
+            let index1 = List.findIndex (fun x -> x = v1) uniqueList
+            let index2 = List.findIndex (fun x -> x = v2) uniqueList
+            m.[index1,index2] <- 2
     m
