@@ -1,6 +1,7 @@
 open Parser
 open Evaluator
 open System
+open MathNet.Numerics.LinearAlgebra
 
 [<EntryPoint>]
 let main args =
@@ -9,9 +10,11 @@ let main args =
     match parse text with
     | Some ast ->
         printfn "success"
-        printfn "%A" ast
-        let res = prettyprint ast
-        printfn "%s" res
+        //printfn "%A" ast
+        let uniqueList = getUniqueVariableList ast
+        printfn "%A" uniqueList
+        let M = initializeMatrix uniqueList
+        printfn "%A" M
         0
     | None ->
         printfn "Invalid program."
