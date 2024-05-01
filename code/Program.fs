@@ -1,4 +1,4 @@
-open Parser
+﻿open Parser
 open Evaluator
 open System
 open MathNet.Numerics.LinearAlgebra
