@@ -19,6 +19,9 @@ let main args =
         printfn "List of all components:" 
         printfn "%A" uniqueList
         let M = initializeMatrix ast
+        printfn "original matrix: "
+        printfn "%A" M
+        printfn "matrix derivatives: "
         let m = getMatrixDerivatives M
         0
     | None ->

@@ -58,25 +58,53 @@ let rec matrixDeriveRowWise (m: Matrix<double>) (r:int) (l:int)=
         matrixDeriveRowWiseCol m r 0 l false
 
 and matrixDeriveRowWiseCol (m: Matrix<double>) (r:int) (c:int) (l:int) (found:bool) : Matrix<double> list = 
-    if c>=l then 
+    if c>=l then
         if found then
             []
         else
-            [m]
+            if r >=l then
+                [m]
+            else
+                matrixDeriveRowWise m (r+1) l
 
     else
         let matrixElement = m.[r,c]
         if matrixElement > 0 then
-            let matrixCopy = m
+            let matrixCopy = Matrix<double>.Build.DenseOfMatrix(m)
+            //printfn "%A" m
+            // set all other elements of the row to 0
             for col in 0 .. (l-1) do
                 if col <> c then
                     matrixCopy.[r,col] <- 0
             let matrixFurtherRows =  matrixDeriveRowWise matrixCopy (r+1) l
+            //printfn "%A" m
+            //printfn "%A" (matrixDeriveRowWiseCol m r (c+1) l true)
             matrixFurtherRows @ (matrixDeriveRowWiseCol m r (c+1) l true)
         else
             matrixDeriveRowWiseCol m r (c+1) l found
-            
+
+let rec transposeMap list =
+    match list with
+    | [] ->
+        []
+    | head::tail ->
+        (Matrix.transpose(head)) :: (transposeMap tail)
+
+let rec matrixDeriveColWise m = 
+    let m = Matrix.transpose(m)
+    let mList = matrixDeriveRowWise m 0 m.RowCount
+    let mList2 = transposeMap mList
+    mList2
+
+let rec colDerivativeMap list =
+    match list with
+    | [] ->
+        []
+    | head::tail ->
+        (matrixDeriveColWise head) @ (colDerivativeMap tail)
+
 let getMatrixDerivatives (m: Matrix<double>) = 
-    let mList= matrixDeriveRowWise m 0 m.RowCount
-    printfn "%A" mList
-    m
+    let mListRowExclusion= matrixDeriveRowWise m 0 m.RowCount
+    let mListColExclusion = colDerivativeMap mListRowExclusion
+    printfn "%A" mListColExclusion
+    mListColExclusion
