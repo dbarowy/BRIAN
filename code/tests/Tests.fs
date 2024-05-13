@@ -92,3 +92,14 @@ type TestEvaluator () =
             let y = array2D [[|double(0); 1; 1|]; [|0; 0; 1|]; [|0; 0; 0|]]
             let expected = Matrix<double>.Build.DenseOfArray(y)
             Assert.AreEqual(result, expected)
+
+    // test to see if 'getMatrixDerivatives' function is working correctly
+    [<TestMethod>]
+    member this.TestMethod7 () = 
+            let x = array2D [[|double(0); 1; 0|]; [|0; 0; 1|]; [|0; 0; 0|]]
+            let input = Matrix<double>.Build.DenseOfArray(x)
+            let result = getMatrixDerivatives input 0
+            
+            let y = array2D [[|double(0); 1; 1|]; [|0; 0; 1|]; [|0; 0; 0|]]
+            let expected = Matrix<double>.Build.DenseOfArray(y)
+            Assert.AreEqual(result, expected)

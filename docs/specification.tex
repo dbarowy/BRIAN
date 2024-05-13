@@ -28,6 +28,9 @@
 \newcommand{\Lab}{9}
 \newcommand{\ProblemHeader}
 
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
 % This will set LaTeX to look for figures in the same directory as the .tex file
 \graphicspath{.} % The dot means current directory.
 
@@ -139,20 +142,30 @@ The combining forms of cellular components mainly include more abstract interact
 \end{align*}
     
 \section*{\textit{Semantics}}
-\begin{enumerate}[label={(\roman*)}]
-\item About Primitives:
-    \begin{itemize}
-    \item \verb|Gene| is a primitive of type \verb|string|. \verb|Gene| types must start with a lowercase letter.
-    \item \verb|Protein| is a primitive of type \verb|string|. \verb|Protein| types must start with a capital letter.
-    \item \verb|Phenotype| is a primitive of type \verb|string|. \verb|Phenotype| types must start with a “$*$” symbol. 
-    \item \verb|Other| is a primitive of type \verb|string|. The aim of \verb|Other| is to capture any exceptional cellular components a user might wish to enter that do not currently have a formal variable representation. \verb|Other| types must start with a “$\#$” symbol.
-    \end{itemize}
-\item About Combining Forms: \\
 
-The primary combining form of the language is \verb|Relationship| of type \verb|Variable*Variable| (and thus type \verb|string*string|). \verb|Relationship| currently has two subtypes: \verb|Activation| and \verb|Inhibition|.
-The combining form \verb|Sequence| is a list of \verb|Relationship|s. \\
+\begin{center}
+\begin{tabular}{ M{4cm}|M{4cm}|M{1.5cm}|m{6cm} }
+ Syntax & Abstract Syntax & Prec./Assoc. & \centering\arraybackslash Meaning \\ 
+ \hline
+  \verb|<gene>| & \verb|Variable| of \verb|string| & n/a  &\verb|Gene| is a primitive of type \verb|string|. \verb|Gene| is a subtype of the primary \verb|Variable| primitive and must start with a lowercase letter. \\ 
+ \hline
+ \verb|<protein>| & \verb|Variable| of \verb|string| & n/a  &\verb|Protein| is a primitive of type \verb|string|. \verb|Protein| is a subtype of the primary \verb|Variable| primitive and must start with a capital letter. \\ 
+ \hline
+ \verb|<phenotype>| & \verb|Variable| of \verb|string| & n/a  &\verb|Phenotype| is a primitive of type \verb|string|. \verb|Phenotype| is a subtype of the primary \verb|Variable| primitive and must start with a “$*$” character. \\ 
+ \hline
+ \verb|<other>| & \verb|Variable| of \verb|string| & n/a  &\verb|Other| is a primitive of type \verb|string|. \verb|Other| is a subtype of the primary \verb|Variable| primitive and must start with a “$\#$” character. \\ 
+ \hline
+  \verb|<v1>␣| activates \verb|␣<v2>| & \verb|Activation| of \verb|Variable * Variable|& n/a & \verb|Activation| indicates the relationship between two given variables, specifically \verb|v1| activates \verb|v2|. \verb|Activation| is a subtype of the primary \verb|Relation| combining form.\\ 
+ \hline
+ \verb|<v1>␣| inhibits \verb|␣<v2>| & \verb|Inhibition| of \verb|Variable * Variable|& n/a & \verb|Inhibition| indicates the relationship between two given variables, specifically \verb|v1| inhibits \verb|v2|. \verb|Inhibition| is a subtype of the primary \verb|Relation| combining form.\\ 
+ \hline
+ \verb|<Relation>|$^+$ & \verb|List| of \verb|Relation| & n/a & \verb|Sequence| contains a list of all \verb|Relations| present in a given BRN. \verb|Sequence| must take at least one \verb|Relation| to be valid.\\ 
+ \hline
+\end{tabular}
+\end{center}
 
-\item About Evaluation \\
+\vspace{1cm}
+\textbf{About Evaluation} \\ 
 
 Aside from the program which is contained in a .txt file, no additional input is provided. \\
 
@@ -283,8 +296,6 @@ From this new matrix, the following relationships are found:
     \end{verbatim}
 
 Using this new graph, the same matrix derivation and multiplication process can be repeated to find new relationships, up to n times where n is the number of unique elements.
-
-\end{enumerate}
 
 % DO NOT DELETE ANYTHING BELOW THIS LINE
 %---------------------------------------------------------------------------------------------------------
