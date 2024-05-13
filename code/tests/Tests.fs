@@ -92,3 +92,14 @@ type TestEvaluator () =
             let y = array2D [[|double(0); 1; 1|]; [|0; 0; 1|]; [|0; 0; 0|]]
             let expected = Matrix<double>.Build.DenseOfArray(y)
             Assert.AreEqual(result, expected)
+
+    // test to see if 'getMatrixDerivatives' function is working correctly
+    [<TestMethod>]
+    member this.TestMethod7 () = 
+            let input = [Activation (Protein "A", Gene "b");
+                                        Activation (Gene "b", Phenotype "*c")]
+            let result = eval input
+            
+            let expected = [Activation (Protein "A", Phenotype "*c")]
+            Assert.AreEqual(result, expected)
+    
