@@ -15,12 +15,7 @@ let main args =
     | Some ast ->
         printfn "success"
         printfn "%A" ast
-        printfn "%s" (prettyprint ast)
-        let uniqueList = getUniqueVariableList ast
-        printfn "List of all components:" 
-        printfn "%A" uniqueList
-        let M = initializeMatrix ast
-        printfn "%A" M
+        let m = eval ast
         0
     | None ->
         printfn "Invalid program."

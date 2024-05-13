@@ -1,0 +1,5 @@
+A activates B
+A activates C
+B activates C
+C activates A
+C activates B
