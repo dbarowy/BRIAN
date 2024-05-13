@@ -162,7 +162,7 @@ let rec addInValuesFromList (m:Matrix<double>)  (mList: Matrix<double> list) : M
             addInValuesFromList newMatrix tail
 
 
-let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int)= 
+let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int) = 
     let maxIterations = int (System.Math.Round(Math.Log(m.RowCount, 2)))
     if (iterations >= maxIterations) then
         m
