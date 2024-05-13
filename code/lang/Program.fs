@@ -13,8 +13,8 @@ let main args =
     let text = IO.File.ReadAllText file
     match parse text with
     | Some ast ->
-        printfn "success"
-        printfn "%A" ast
+        printfn "Successful parse"
+        //printfn "%A" ast
         let m = eval ast
         0
     | None ->

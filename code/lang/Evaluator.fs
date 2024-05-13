@@ -127,18 +127,32 @@ let rec addInValuesFromMatrix (m:Matrix<double>) (m2:Matrix<double>) : Matrix<do
                     m.[row,col] <- valueAtM2
                 //differing values when valueAtM != 0
                 elif valueAtM <> valueAtM2 then
-                    //4 on a diagnal is not a real contradiction
+                    //avoids not real contradictions
                     if not (valueAtM = 1 && valueAtM2 = 4) && not (row = col && valueAtM = 2 && valueAtM2 = 4) then
-                        m.[0,0] <- 5
+                        m.[row,col] <- 5
     let m = fourToOnes m
     m
+
+let rec findFive (m:Matrix<double>) (r:int) (c:int) (l: int) : bool = 
+    if (l <= 0 ) then
+        false
+    elif (c < l && r < l && m.[r,c] = 5) then
+        true
+    else
+        if c >= l then
+            if r >= l then
+                false
+            else
+              findFive m (r+1) 0 l  
+        else
+            findFive m r (c+1) l  
 
 let rec addInValuesFromList (m:Matrix<double>)  (mList: Matrix<double> list) : Matrix<double> =
     match mList with
     | [] -> m
     | head::tail ->
         let newMatrix = addInValuesFromMatrix m head
-        if (newMatrix.[0,0] = 5) then
+        if (findFive newMatrix 0 0 newMatrix.RowCount) then
             //error message
             newMatrix
         else
@@ -147,7 +161,6 @@ let rec addInValuesFromList (m:Matrix<double>)  (mList: Matrix<double> list) : M
 
 let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int)= 
     let maxIterations = int (System.Math.Round(Math.Log(m.RowCount, 2)))
-    printfn "%A" maxIterations
     if (iterations >= maxIterations) then
         m
     else
@@ -156,15 +169,54 @@ let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int)=
         let mListSquare = squareMap mListColExclusion
         let mAdd = addInValuesFromList m mListSquare
         //if (newMatrix.[0,0] = 5) then
-        printfn "iteration: %A" iterations
-        printfn "%A" mAdd
         getMatrixDerivatives mAdd (iterations + 1)
 
+let rec getNewRelationships (m1:Matrix<double>) (m2:Matrix<double>) (variableList: Variable list) (r:int) (c:int) (l: int) (relationList: Relation list) :Relation list = 
+    if (c < l && r < l) then
+        if (m2.[r,c] = 5) then
+            failwith "Contradiction Found: "
+    let relationList = 
+        if (c < l && r < l) then
+            if (m1.[r,c] = 0 && m2.[r,c] > 0) then
+                let variable1 = variableList[r]
+                let variable2 = variableList[c]
+                if (m2.[r,c] = 1) then
+                    let foundRelationship = Activation(variable1, variable2)
+                    relationList @ [foundRelationship]
+                elif (m2.[r,c] = 2) then
+                    let foundRelationship = Inhibition(variable1, variable2)
+                    relationList @ [foundRelationship]
+                else 
+                    relationList
+            else 
+                relationList
+        else
+            relationList
+    if c >= l then
+        if r >= l then
+            relationList
+        else
+            getNewRelationships m1 m2 variableList (r+1) 0 l relationList
+    else
+        getNewRelationships m1 m2 variableList r (c+1) l relationList
+
 let eval (s: Sequence) = 
+    let uniqueList = getUniqueVariableList s
+    //printfn "list of unique components: "
+    //printfn "%A" uniqueList
     let M = initializeMatrix s
-    printfn "original matrix: "
-    printfn "%A" M
-    
-    let M = getMatrixDerivatives M 0
+    let originalM = Matrix<double>.Build.DenseOfMatrix(M)
+    //printfn "original matrix: "
     //printfn "%A" M
-    M
+    let M = getMatrixDerivatives M 0
+    //printfn "derivative add matrix: "
+    //printfn "%A" M
+    printfn "New found relations: "
+    let foundRelations = 
+        try
+        getNewRelationships originalM M uniqueList 0 0 M.RowCount []
+        with
+        | Failure(msg) -> printfn "%s" msg; []
+    
+    printfn "%A" (prettyprint foundRelations)
+    foundRelations
