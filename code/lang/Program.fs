@@ -19,7 +19,7 @@ let main args =
         printfn "List of all components:" 
         printfn "%A" uniqueList
         let M = initializeMatrix ast
-        printfn "%A" M
+        let m = getMatrixDerivatives M
         0
     | None ->
         printfn "Invalid program."

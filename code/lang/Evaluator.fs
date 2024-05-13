@@ -50,3 +50,34 @@ let initializeMatrix (s: Sequence) =
             let index2 = List.findIndex (fun x -> x = v2) uniqueList
             m.[index1,index2] <- 2
     m
+
+let getMatrixDerivatives (m: Matrix<double>) = 
+    printfn "%A" m
+    m
+
+let rec matrixDeriveRowWise (m: Matrix<double>) (r:int) (l:int)= 
+    if r >= l then
+        [m]
+    else
+        matrixDeriveRowWiseCol m r 0 l false
+
+and matrixDeriveRowWiseCol (m: Matrix<double>) (r:int) (c:int) (l:int) (found:bool) : Matrix<double> list = 
+    if c>=l then 
+        if found then
+            []
+        else
+            [m]
+
+    else
+        let matrixElement = m.[r,c]
+        if matrixElement > 0 then
+            let matrixCopy = m
+            for col in 0 .. (l-1) do
+                if col <> c then
+                    matrixCopy.[r,col] <- 0
+            let matrixFurtherRows =  matrixDeriveRowWise matrixCopy (r+1) l
+            [matrixFurtherRows] @ (matrixDeriveRowWiseCol r (c+1) l true)
+        else
+            matrixDeriveRowWiseCol r (c+1) l found
+            
+
