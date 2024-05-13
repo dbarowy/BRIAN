@@ -221,5 +221,5 @@ let eval (s: Sequence) =
         with
         | Failure(msg) -> printfn "%s" msg; []
     
-    printfn "%A" (prettyprint foundRelations)
+    printfn "%s" (prettyprint foundRelations)
     foundRelations
