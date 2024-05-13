@@ -3,6 +3,9 @@ module Evaluator
 open MathNet.Numerics.LinearAlgebra
 open AST
 
+(** 
+* Helper method to prettyprint method.
+*)
 let variableprint (v: Variable) : string = 
     match v with
     | Gene(s) -> s

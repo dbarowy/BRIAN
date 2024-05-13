@@ -15,6 +15,7 @@ let main args =
     | Some ast ->
         printfn "success"
         printfn "%A" ast
+        printfn "%s" (prettyprint ast)
         let uniqueList = getUniqueVariableList ast
         printfn "List of all components:" 
         printfn "%A" uniqueList
