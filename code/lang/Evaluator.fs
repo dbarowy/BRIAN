@@ -51,10 +51,6 @@ let initializeMatrix (s: Sequence) =
             m.[index1,index2] <- 2
     m
 
-let getMatrixDerivatives (m: Matrix<double>) = 
-    printfn "%A" m
-    m
-
 let rec matrixDeriveRowWise (m: Matrix<double>) (r:int) (l:int)= 
     if r >= l then
         [m]
@@ -76,8 +72,11 @@ and matrixDeriveRowWiseCol (m: Matrix<double>) (r:int) (c:int) (l:int) (found:bo
                 if col <> c then
                     matrixCopy.[r,col] <- 0
             let matrixFurtherRows =  matrixDeriveRowWise matrixCopy (r+1) l
-            [matrixFurtherRows] @ (matrixDeriveRowWiseCol r (c+1) l true)
+            matrixFurtherRows @ (matrixDeriveRowWiseCol m r (c+1) l true)
         else
-            matrixDeriveRowWiseCol r (c+1) l found
+            matrixDeriveRowWiseCol m r (c+1) l found
             
-
+let getMatrixDerivatives (m: Matrix<double>) = 
+    let mList= matrixDeriveRowWise m 0 m.RowCount
+    printfn "%A" mList
+    m
