@@ -1,0 +1,2 @@
+A inhibits B
+B inhibits C
