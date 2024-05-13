@@ -15,14 +15,7 @@ let main args =
     | Some ast ->
         printfn "success"
         printfn "%A" ast
-        let uniqueList = getUniqueVariableList ast
-        printfn "List of all components:" 
-        printfn "%A" uniqueList
-        let M = initializeMatrix ast
-        printfn "original matrix: "
-        printfn "%A" M
-        printfn "matrix derivatives: "
-        let m = getMatrixDerivatives M
+        let m = eval ast
         0
     | None ->
         printfn "Invalid program."
