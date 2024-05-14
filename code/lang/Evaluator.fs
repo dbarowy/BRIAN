@@ -163,13 +163,16 @@ let rec addInValuesFromList (m:Matrix<double>)  (mList: Matrix<double> list) : M
 
 
 let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int) = 
-    let maxIterations = int (System.Math.Round(Math.Log(m.RowCount, 2)))
+    printfn("derivations")
+    printfn("%A") m
+    let maxIterations = int (System.Math.Ceiling(Math.Log(m.RowCount, 2)))
     if (iterations >= maxIterations) then
         m
     else
         let mListRowExclusion= matrixDeriveRowWise m 0 m.RowCount
         let mListColExclusion = colDerivativeMap mListRowExclusion
         let mListSquare = squareMap mListColExclusion
+        printfn("%A") mListSquare
         let mAdd = addInValuesFromList m mListSquare
         //if (newMatrix.[0,0] = 5) then
         getMatrixDerivatives mAdd (iterations + 1)
