@@ -1,5 +1,5 @@
-gene1 inhibits Protein1
-Protein2 activates *phenotype1
-Protein2 inhibits gene3
-*phenotype2 activates gene3
-#unknown_siRNA inhibits gene4-a
+Protein_A activates gene_b
+gene_b activates Protein_A
+gene_b activates Protein_C
+Protein_C inhibits Protein_D
+Protein_D inhibits Protein_D

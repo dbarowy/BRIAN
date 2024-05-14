@@ -220,6 +220,6 @@ let eval (s: Sequence) =
         getNewRelationships originalM M uniqueList 0 0 M.RowCount []
         with
         | Failure(msg) -> printfn "%s" msg; []
-    
     printfn "%s" (prettyprint foundRelations)
     foundRelations
+    

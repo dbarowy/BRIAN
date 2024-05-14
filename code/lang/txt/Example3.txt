@@ -1,5 +1,3 @@
-Protein_A activates gene_b
-gene_b activates Protein_A
-gene_b activates Protein_C
-Protein_C inhibits Protein_D
-Protein_D inhibits Protein_D
+A activates B
+B inhibits C
+A activates C
