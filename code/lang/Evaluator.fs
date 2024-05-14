@@ -174,10 +174,25 @@ let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int) =
         //if (newMatrix.[0,0] = 5) then
         getMatrixDerivatives mAdd (iterations + 1)
 
-let rec getNewRelationships (m1:Matrix<double>) (m2:Matrix<double>) (variableList: Variable list) (r:int) (c:int) (l: int) (relationList: Relation list) :Relation list = 
+let rec getNewRelationships (m1:Matrix<double>) (m2:Matrix<double>) (variableList: Variable list) (r:int) (c:int) (l: int) (relationList: Relation list) : Relation list = 
     if (c < l && r < l) then
         if (m2.[r,c] = 5) then
-            failwith "Contradiction Found: "
+            
+            let variable1 = variableList[r]
+            let variable2 = variableList[c]
+            let contradictoryRelationship = 
+                if (m2.[r,c] = 1) then
+                    Activation(variable1, variable2)
+                elif (m2.[r,c] = 2) then
+                    Inhibition(variable1, variable2)
+                //default
+                else
+                    Activation(variable1, variable2)
+            let contradictionString = prettyprint [contradictoryRelationship]
+            let message = "Contradiction Found At: " + contradictionString
+            failwith message
+            exit 1
+
     let relationList = 
         if (c < l && r < l) then
             if (m1.[r,c] = 0 && m2.[r,c] > 0) then
