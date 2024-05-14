@@ -25,7 +25,7 @@
 
 \setlength{\parindent}{0cm}
 
-\newcommand{\Lab}{9}
+\newcommand{\Lab}{10}
 \newcommand{\ProblemHeader}
 
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
@@ -75,49 +75,56 @@
 Sample Program $\#1$:
     \\Input:
     \begin{verbatim}
-    eval test1.txt
-        test1.txt file:
-        "(Component Interaction) ROCK inhibits MYPT1
-        (Component Modification) MYPT1 phosphorylates MLC
-        (Modification Effect) Phosphorylation inhibits MLC"
+    dotnet run txt/Example1.txt
+        Example1.txt file:
+        "Protein_A activates gene_b
+        gene_b activates Protein_A
+        gene_b activates Protein_C
+        Protein_C inhibits Protein_D
+        Protein_D inhibits Protein_D"
     \end{verbatim} 
     Output (in addition to graphical output):
     \begin{verbatim}
-    (Found) Protein_A activates Protein_A
-    (Found) Protein_A activates Protein_C
-    (Found) gene_b activates Protein_C
-    (Found) gene_b inhibits Protein_D
+    Successful parse.
+    New found relations: 
+    Protein_A activates Protein_A
+    Protein_A activates Protein_C
+    Protein_A inhibits Protein_D
+    gene_b activates gene_b
+    gene_b inhibits Protein_D
     \end{verbatim}
     
 Sample Program $\#2$:
     \\Input:
     \begin{verbatim}
-    eval test2.txt
-        test2.txt file:
-        "ROCK inhibits MYPT1
-        MYPT1 phosphorylates MLC
-        ROCK activates MLC
-        MLC activates *Focal_Adhesion_Formation"
+    dotnet run txt/Example2.txt
+        Example2.txt file:
+        "gene1 inhibits Protein1
+        Protein2 activates *phenotype1
+        Protein2 inhibits gene3
+        *phenotype2 activates gene3
+        #unknown_siRNA inhibits gene4-a"
     \end{verbatim} 
     Output (in addition to graphical output):
     \begin{verbatim}
-    (Found) Phosphorylation inhibits MLC
-    (Found) MYPT1 inhibits *Focal_Adhesion_Formation
-    (Found) ROCK activates *Focal_Adhesion_Formation
+    Successful parse.
+    New found relations: (None)
     \end{verbatim} 
 
 Sample Program $\#3$:
     \\Input:
     \begin{verbatim}
-    eval test3.txt
-        test3.txt file:
-        "rock activates mlc
-        mlc inhibits rock
-        rock activates rock"
+    dotnet run txt/Example3.txt
+        Example3.txt file:
+        "A activates B
+        B inhibits C
+        A activates C"
     \end{verbatim} 
     Output (in addition to graphical output):
     \begin{verbatim}
-    ERROR: Initial information in BRN is contradictory.
+    Successful parse.
+    New found relations: (None)
+    Contradiction Found At: A activates C
     \end{verbatim} 
     
 \section*{\textit{Language Concepts}}
@@ -140,7 +147,9 @@ The combining forms of cellular components mainly include more abstract interact
 & | \; \langle variable \rangle \; \mbox{inhibits} \; \langle variable \rangle \\
 \langle sequence \rangle ::=& \: {\langle relationship \rangle}^{+}
 \end{align*}
-    
+\vspace{8cm}
+
+
 \section*{\textit{Semantics}}
 
 \begin{center}
@@ -176,7 +185,7 @@ To understand how evaluation works for BRIAN, let’s consider our first example
 BRIAN parses the text file and classifies the cellular components into their appropriate primitive types. 
 
 \begin{verbatim}
-    test1.txt file:
+    Example1.txt file:
         "Protein_A activates gene_b
         gene_b activates Protein_A
         gene_b activates Protein_C
@@ -278,7 +287,7 @@ $$\mbox{Matrix4} = \begin{pmatrix}
         0 & 0 & 0 & 4 \\
 \end{pmatrix}$$
 
-The new values from these matrices can be added back to the original (in cases where the multiplied matrices present a different value at the same index as the original matrix, the original value is kept).
+The new values from these matrices can be added back to the original (inhibition (2) on diagonal values (representing self-inhibition) result in a 4 in the same place after squaring; in this case we do not consider this a contradiction).
 
 $$P' = \begin{pmatrix}
 	1 & 1 & 1 & 0 \\
@@ -289,13 +298,30 @@ $$P' = \begin{pmatrix}
 
 From this new matrix, the following relationships are found:
  \begin{verbatim}
-    (Found) Protein_A activates Protein_A
-    (Found) Protein_A activates Protein_C
-    (Found) gene_b activates Protein_C
-    (Found) gene_b inhibits Protein_D
+    New found relations: 
+    Protein_A activates Protein_A
+    Protein_A activates Protein_C
+    gene_b activates gene_b
+    gene_b inhibits Protein_D
     \end{verbatim}
 
-Using this new graph, the same matrix derivation and multiplication process can be repeated to find new relationships, up to n times where n is the number of unique elements.
+Using this new graph, the same matrix derivation and multiplication process can be repeated to find new relationships, up to $log_2(n)$ times where $n$ is the number of unique elements. This results in the final matrix:
+$$P' = \begin{pmatrix}
+	1 & 1 & 1 & 2 \\
+	1 & 1 & 1 & 2 \\
+        0 & 0 & 0 & 2 \\
+        0 & 0 & 0 & 2 \\
+\end{pmatrix}$$
+
+From the final matrix, the following relationships are found:
+ \begin{verbatim}
+    New found relations: 
+    Protein_A activates Protein_A
+    Protein_A activates Protein_C
+    Protein_A inhibits Protein_D
+    gene_b activates gene_b
+    gene_b inhibits Protein_D
+    \end{verbatim}
 
 % DO NOT DELETE ANYTHING BELOW THIS LINE
 %---------------------------------------------------------------------------------------------------------
