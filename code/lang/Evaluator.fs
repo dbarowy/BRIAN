@@ -103,6 +103,9 @@ let rec colDerivativeMap list =
     | head::tail ->
         (matrixDeriveColWise head) @ (colDerivativeMap tail)
 
+(**
+* Function to square each element of a matrix.
+*)
 let rec squareMap (list:  Matrix<double> list) =
     match list with
     | [] ->
