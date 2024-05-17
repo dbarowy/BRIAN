@@ -2,3 +2,4 @@ A inhibits B
 D activates B
 D activates C
 D ? A
+A ? D
