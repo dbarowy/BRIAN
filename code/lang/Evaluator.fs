@@ -18,6 +18,8 @@ let relationprint (r: Relation) : string =
     match r with
     | Activation(v1, v2) -> (variableprint v1) + " activates " + (variableprint v2)
     | Inhibition(v1, v2) -> (variableprint v1) + " inhibits " + (variableprint v2)
+    | Query(v1, v2) -> (variableprint v1) + " ? " + (variableprint v2)
+
 
 let rec prettyprint (s: Sequence) : string =
     match s with
@@ -28,6 +30,7 @@ let variablesFromRelation (r: Relation) : Variable list =
     match r with
     | Activation(v1, v2) -> [v1; v2]
     | Inhibition(v1, v2) -> [v1; v2]
+    | Query(v1, v2) -> [v1; v2]
 
 let rec getVariableList (s: Sequence) : Variable list= 
     match s with
@@ -53,6 +56,7 @@ let initializeMatrix (s: Sequence) =
             let index1 = List.findIndex (fun x -> x = v1) uniqueList
             let index2 = List.findIndex (fun x -> x = v2) uniqueList
             m.[index1,index2] <- 2
+        | Query(v1, v2) -> ()
     m
 
 let rec matrixDeriveRowWise (m: Matrix<double>) (r:int) (l:int)= 
@@ -163,8 +167,8 @@ let rec addInValuesFromList (m:Matrix<double>)  (mList: Matrix<double> list) : M
 
 
 let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int) = 
-    printfn("derivations")
-    printfn("%A") m
+    //printfn("derivations")
+    //printfn("%A") m
     let maxIterations = int (System.Math.Ceiling(Math.Log(m.RowCount, 2)))
     if (iterations >= maxIterations) then
         m
@@ -172,9 +176,8 @@ let rec getMatrixDerivatives (m: Matrix<double>) (iterations: int) =
         let mListRowExclusion= matrixDeriveRowWise m 0 m.RowCount
         let mListColExclusion = colDerivativeMap mListRowExclusion
         let mListSquare = squareMap mListColExclusion
-        printfn("%A") mListSquare
+        //printfn("%A") mListSquare
         let mAdd = addInValuesFromList m mListSquare
-        //if (newMatrix.[0,0] = 5) then
         getMatrixDerivatives mAdd (iterations + 1)
 
 let rec getNewRelationships (m1:Matrix<double>) (m2:Matrix<double>) (variableList: Variable list) (r:int) (c:int) (l: int) (relationList: Relation list) : Relation list = 
@@ -221,7 +224,79 @@ let rec getNewRelationships (m1:Matrix<double>) (m2:Matrix<double>) (variableLis
     else
         getNewRelationships m1 m2 variableList r (c+1) l relationList
 
+let rec getQueries s = 
+    match s with
+    | [] -> []
+    | Query(a,b)::xs -> Query(a,b):: getQueries xs
+    | x::xs -> getQueries xs
+
+let printFoundRelations foundRelations = 
+        match foundRelations with
+        | [] -> 
+            printfn "No new relations found"
+            foundRelations
+        | [Query(a,b)] -> 
+            //print nothing
+            foundRelations
+        | _ -> 
+            printfn "%s" (prettyprint foundRelations)
+            foundRelations
+
+let testQuery (q: Relation) (s: Sequence) (filled_matrix: Matrix<double>)= 
+    printfn "----------------"
+    let uniqueList = getUniqueVariableList s
+    let var1, var2 = 
+        match q with
+        | Query(a, b) -> a, b
+        | Activation(a, b) -> a, b //technically should not use
+        | Inhibition(a, b) -> a, b //technically should not use
+    
+    printfn "Expected new relations for %s activates %s" (variableprint var1) (variableprint var2)
+    let activationM = Matrix<double>.Build.DenseOfMatrix(filled_matrix)
+    let index1 = List.findIndex (fun x -> x = var1) uniqueList
+    let index2 = List.findIndex (fun x -> x = var2) uniqueList
+    activationM.[index1,index2] <- 1
+    let M = initializeMatrix (s @ [Activation(var1,var2)])
+    let M = getMatrixDerivatives M 0
+    let activationRelations = 
+        try
+        getNewRelationships activationM M uniqueList 0 0 M.RowCount []
+        with
+        | Failure(msg) -> printfn "%s" msg; [Query(var1,var1)]
+    let printResult = printFoundRelations activationRelations |> ignore
+
+    printfn "Expected new relations for %s inhibits %s" (variableprint var1) (variableprint var2)
+    let inhibitionM = Matrix<double>.Build.DenseOfMatrix(filled_matrix)
+    let index1 = List.findIndex (fun x -> x = var1) uniqueList
+    let index2 = List.findIndex (fun x -> x = var2) uniqueList
+    inhibitionM.[index1,index2] <- 2
+    let M = initializeMatrix (s @ [Inhibition(var1,var2)])
+    let M = getMatrixDerivatives M 0
+    let inhibitionRelations = 
+        try
+        getNewRelationships inhibitionM M uniqueList 0 0 M.RowCount []
+        with
+        | Failure(msg) -> printfn "%s" msg; [Query(var1,var1)]
+    let printResult = printFoundRelations inhibitionRelations |> ignore
+
+    // a found query signifies a contradiction was found
+    match (activationRelations,inhibitionRelations) with
+    | [Query(a,b)], [Query(c,d)] -> 
+        printfn "Conclusion: %s cannot modulate %s" (variableprint var1) (variableprint var2)
+        ()
+    | [Query(a,b)], _ -> 
+        printfn "Conclusion: %s may inhibit %s or have no effect" (variableprint var1) (variableprint var2)
+        ()
+    | _, [Query(a,b)] -> 
+        printfn "Conclusion: %s may activate %s or have no effect" (variableprint var1) (variableprint var2)
+        ()
+    | _, _ -> 
+        printfn "Conclusion: %s may activate %s, inhibit %s, or have no effect" (variableprint var1) (variableprint var2) (variableprint var2)
+        ()
+
+
 let eval (s: Sequence) = 
+    //printfn "%A" s
     let uniqueList = getUniqueVariableList s
     //printfn "list of unique components: "
     //printfn "%A" uniqueList
@@ -237,7 +312,12 @@ let eval (s: Sequence) =
         try
         getNewRelationships originalM M uniqueList 0 0 M.RowCount []
         with
-        | Failure(msg) -> printfn "%s" msg; []
-    printfn "%s" (prettyprint foundRelations)
-    foundRelations
+        | Failure(msg) -> printfn "%s" msg; [Query(uniqueList[0],uniqueList[0])]
     
+    let printResult = printFoundRelations foundRelations |> ignore
+
+    let Q = getQueries s
+    for query in Q do
+        testQuery query s M |> ignore
+
+    foundRelations
