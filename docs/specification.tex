@@ -130,7 +130,7 @@ Sample Program $\#3$:
 \section*{\textit{Language Concepts}}
 A typical user is expected to be familiar with cellular components, such as proteins, genes and phenotypes, which serve as primitives for BRIAN. When the user inputs a text file describing observed relationships between components, BRIAN constructs a fitting BRN and infers new relationships between the variables. In essence, BRIAN’s evaluator is designed to consider all possible combinations between the identified primitives and offer any new found ones as a result.\\
 
-The combining forms of cellular components mainly include more abstract interactions (e.g. activation, repression), or if these are not known, the biochemical modification (e.g. phosphorylation, ubiquitination, acetylation, methylation) between two cellular components (the primitives). Upon receiving a correct file of relationship descriptions from the user, BRIAN parses and stores all relationships between cellular components in a list of relations.
+The combining forms of cellular components mainly include more abstract interactions (e.g. activation, repression), or if these are not known, the user can request a query to understand what is the interaction between their desired pair of components. Upon receiving a correct file of relationship descriptions from the user, BRIAN parses and stores all relationships between cellular components in a list of relations.
 
 \section*{\textit{Syntax}}
 \begin{align*}
@@ -142,9 +142,10 @@ The combining forms of cellular components mainly include more abstract interact
 & | \; \langle protein \rangle \; \\
 & | \; \langle phenotype \rangle \; \\
 & | \; \langle other \rangle \\
-\langle relationship \rangle ::=& 
-\; \langle variable \rangle \; \mbox{activates} \; \langle variable \rangle \\
-& | \; \langle variable \rangle \; \mbox{inhibits} \; \langle variable \rangle \\
+\langle relation \rangle ::=& 
+\; \langle variable \rangle \textvisiblespace \: \mbox{activates} \: \textvisiblespace \langle variable \rangle \\
+& | \; \langle variable \rangle \textvisiblespace \: \mbox{inhibits} \: \textvisiblespace \langle variable \rangle \\
+& | \; \langle variable \rangle \: ? \: \langle variable \rangle \\
 \langle sequence \rangle ::=& \: {\langle relationship \rangle}^{+}
 \end{align*}
 \vspace{8cm}
@@ -153,22 +154,24 @@ The combining forms of cellular components mainly include more abstract interact
 \section*{\textit{Semantics}}
 
 \begin{center}
-\begin{tabular}{ M{4cm}|M{4cm}|M{1.5cm}|m{6cm} }
- Syntax & Abstract Syntax & Prec./Assoc. & \centering\arraybackslash Meaning \\ 
+\begin{tabular}{ M{4cm}|M{4cm}|m{6cm} }
+ Syntax & Abstract Syntax & \centering\arraybackslash Meaning \\ 
  \hline
-  \verb|<gene>| & \verb|Variable| of \verb|string| & n/a  &\verb|Gene| is a primitive of type \verb|string|. \verb|Gene| is a subtype of the primary \verb|Variable| primitive and must start with a lowercase letter. \\ 
+  \verb|<gene>| & \verb|Variable| of \verb|string| &\verb|Gene| is a primitive of type \verb|string|. \verb|Gene| is a subtype of the primary \verb|Variable| primitive and must start with a lowercase letter. \\ 
  \hline
- \verb|<protein>| & \verb|Variable| of \verb|string| & n/a  &\verb|Protein| is a primitive of type \verb|string|. \verb|Protein| is a subtype of the primary \verb|Variable| primitive and must start with a capital letter. \\ 
+ \verb|<protein>| & \verb|Variable| of \verb|string| &\verb|Protein| is a primitive of type \verb|string|. \verb|Protein| is a subtype of the primary \verb|Variable| primitive and must start with a capital letter. \\ 
  \hline
- \verb|<phenotype>| & \verb|Variable| of \verb|string| & n/a  &\verb|Phenotype| is a primitive of type \verb|string|. \verb|Phenotype| is a subtype of the primary \verb|Variable| primitive and must start with a “$*$” character. \\ 
+ \verb|<phenotype>| & \verb|Variable| of \verb|string| &\verb|Phenotype| is a primitive of type \verb|string|. \verb|Phenotype| is a subtype of the primary \verb|Variable| primitive and must start with a “$*$” character. \\ 
  \hline
- \verb|<other>| & \verb|Variable| of \verb|string| & n/a  &\verb|Other| is a primitive of type \verb|string|. \verb|Other| is a subtype of the primary \verb|Variable| primitive and must start with a “$\#$” character. \\ 
+ \verb|<other>| & \verb|Variable| of \verb|string| &\verb|Other| is a primitive of type \verb|string|. \verb|Other| is a subtype of the primary \verb|Variable| primitive and must start with a “$\#$” character. \\ 
  \hline
-  \verb|<v1>␣| activates \verb|␣<v2>| & \verb|Activation| of \verb|Variable * Variable|& n/a & \verb|Activation| indicates the relationship between two given variables, specifically \verb|v1| activates \verb|v2|. \verb|Activation| is a subtype of the primary \verb|Relation| combining form.\\ 
+  \verb|<v1>␣| activates \verb|␣<v2>| & \verb|Activation| of \verb|Variable * Variable| & \verb|Activation| indicates the relationship between two given variables, specifically \verb|v1| activates \verb|v2|. \verb|Activation| is a subtype of the primary \verb|Relation| combining form.\\ 
  \hline
- \verb|<v1>␣| inhibits \verb|␣<v2>| & \verb|Inhibition| of \verb|Variable * Variable|& n/a & \verb|Inhibition| indicates the relationship between two given variables, specifically \verb|v1| inhibits \verb|v2|. \verb|Inhibition| is a subtype of the primary \verb|Relation| combining form.\\ 
+ \verb|<v1>␣| inhibits \verb|␣<v2>| & \verb|Inhibition| of \verb|Variable * Variable| & \verb|Inhibition| indicates the relationship between two given variables, specifically \verb|v1| inhibits \verb|v2|. \verb|Inhibition| is a subtype of the primary \verb|Relation| combining form.\\ 
  \hline
- \verb|<Relation>|$^+$ & \verb|List| of \verb|Relation| & n/a & \verb|Sequence| contains a list of all \verb|Relations| present in a given BRN. \verb|Sequence| must take at least one \verb|Relation| to be valid.\\ 
+ \verb|<v1>| \verb|?| \verb|<v2>| & \verb|Query| of \verb|Variable * Variable| & \verb|Query| indicates the user's request to find out about the relationship between two given variables, \verb|v1| and \verb|v2|. \verb|Query| is a subtype of the primary \verb|Relation| combining form.\\ 
+ \hline
+ \verb|<Relation>|$^+$ & \verb|List| of \verb|Relation| & \verb|Sequence| contains a list of all \verb|Relations| present in a given BRN. \verb|Sequence| must take at least one \verb|Relation| to be valid.\\ 
  \hline
 \end{tabular}
 \end{center}
