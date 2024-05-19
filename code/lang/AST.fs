@@ -9,6 +9,7 @@ type Variable =
 type Relation = 
 |   Activation of Variable*Variable
 |   Inhibition of Variable*Variable
+|   Query of Variable*Variable
 
 type Sequence = Relation list
 

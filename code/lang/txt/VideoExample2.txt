@@ -1,0 +1,10 @@
+A activates B
+B inhibits C
+A inhibits D
+C activates E
+C inhibits F
+D inhibits G
+B activates H
+D inhibits I
+G activates J
+H ? G

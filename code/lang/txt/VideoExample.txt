@@ -1,0 +1,3 @@
+A inhibits B
+B inhibits C
+C activates A
