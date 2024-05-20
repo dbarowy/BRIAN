@@ -126,6 +126,35 @@ Sample Program $\#3$:
     New found relations: (None)
     Contradiction Found At: A activates C
     \end{verbatim} 
+
+Sample Program $\#4$:
+    \\Input:
+    \begin{verbatim}
+    dotnet run txt/Query.txt
+        Example3.txt file:
+        "A activates b
+        b inhibits *c
+        *c ? A"
+    \end{verbatim} 
+    Output (in addition to graphical output):
+    \begin{verbatim}
+    Successful parse.
+    New found relations: 
+    A inhibits *c
+    
+    ----------------
+    Expected new relations for *c activates A
+    Contradiction Found At: *c activates A
+    
+    Expected new relations for *c inhibits A
+    A activates A
+    b activates A
+    b activates b
+    *c inhibits b
+    *c activates *c
+    
+    Conclusion: *c may inhibit A or have no effect
+    \end{verbatim} 
     
 \section*{\textit{Language Concepts}}
 A typical user is expected to be familiar with cellular components, such as proteins, genes and phenotypes, which serve as primitives for BRIAN. When the user inputs a text file describing observed relationships between components, BRIAN constructs a fitting BRN and infers new relationships between the variables. In essence, BRIAN’s evaluator is designed to consider all possible combinations between the identified primitives and offer any new found ones as a result.\\
@@ -325,6 +354,16 @@ From the final matrix, the following relationships are found:
     gene_b activates gene_b
     gene_b inhibits Protein_D
     \end{verbatim}
+
+
+\section*{\textit{Remaining Work}}
+
+Further development for BRIAN as a programming language would look as following:
+
+\begin{itemize}
+    \item Addition of other relationships: Currently, BRIAN covers relatively abstract relations, i.e. activation and inhibition. But sometimes experimental data can only contain biochemical modifications (e.g., phosphorylation, ubiquitination, acetylation, methylation) from which a more abstract relationship can be derived --- in the future, this would be a challenging but a helpful feature to implement.
+    \item Graphical representation of variables and relationships: The future version of BRIAN should be able to offer a visual display of the network given by the user. Given enough time to explore and experiment with F\#'s graphical libraries, this feature is sure to give BRIAN a nice visual flair and make the relationship predictions more intuitive to the user.
+\end{itemize}
 
 % DO NOT DELETE ANYTHING BELOW THIS LINE
 %---------------------------------------------------------------------------------------------------------

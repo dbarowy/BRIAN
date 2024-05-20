@@ -1,0 +1,3 @@
+A activates b
+b inhibits *c
+*c ? A
