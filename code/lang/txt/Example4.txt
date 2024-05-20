@@ -1,5 +1,4 @@
-A inhibits B
-D activates B
-D activates C
-D ? A
-A ? D
+A activates b
+C inhibits b
+C ? A
+A inhibits d

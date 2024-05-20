@@ -49,23 +49,24 @@
 \lfoot{CSCI 334: Principles of Programming Languages}
 \cfoot{\thepage}
 \rfoot{Spring 2024}
-  
+
 %---------------------------------------------------------------------------------------------------------
 % DON'T CHANGE ANYTHING ABOVE THIS LINE
 \section*{Biological Regulatory Inferential Additive Network (BRIAN) Specification}
-\section*{\textit{Introduction}} 
+    M Batsaikhan, Luke Young-Xu
+\section*{\textit{Introduction}}
      The human body is a carefully engineered biological system, consisting of approximately 30 trillion cells — all which must perform a diverse and dynamic set of functions to support daily living. But how do all these cells know which role to perform and successfully carry out their functions? The answer lies in biological regular networks, or BRNs, consisting of interconnected cellular components, such as genes, proteins, and metabolites, that interact through regulatory mechanisms to control the expression of genes, cellular activities, and organismal functions. \\
-     
-    With a single cell in humans often containing over 10,000 different types of protein, as well as each protein having a host of possible post-translational modifications, constructing a BRN becomes a graph-navigating problem which can quickly evolve to be a computational nightmare. This is where Biological Regulatory Inferential Additive Network (BRIAN) language hopes to offer improvements in the workflow of a lab scientist by automatically constructing possible biological regulatory networks from the user's input of simple existing relationships between cellular components discovered through experimental work. The language would be capable of translating this experimentally established relationship data into an adjacency matrix representation of a BRN, each row/column representing a specific component and indices representing relationships. Ultimately, the BRIAN language could use this matrix to construct a useful graphical representation of the described biological system and present possible new relationships that were gleaned after evaluation to the user. \\
-    
+
+    With a single cell in humans often containing over 10,000 different types of protein and over 20,000 genes, constructing a BRN becomes a graph-navigating problem which can quickly evolve to be a computational nightmare. This is where Biological Regulatory Inferential Additive Network (BRIAN) language hopes to offer improvements in the workflow of a lab scientist by automatically constructing possible biological regulatory networks from the user's input of simple existing relationships between cellular components discovered through experimental work. The language would be capable of translating this experimentally established relationship data into an adjacency matrix representation of a BRN, each row/column representing a specific component and indices representing relationships. Ultimately, the BRIAN language could use this matrix to find new relationships between components as well as test the feasibility of relationships between specified components during evaluation and present these results back to the user. \\
+
     As a programming language, BRIAN’s strength lies in its ease of use: programs from a text file consist of a list of observed relationships between cellular components, which does not require the user to be acquainted with any level of coding. In this sense programs are extremely modular in which new experimental results can simply be appended to an already existing program. The language itself can also identify logical conflicts in the relations provided in the program through its evaluation of the adjacency matrix (described in further detail below). \\
 
-\section*{\textit{Design Principles}} 
+\section*{\textit{Design Principles}}
     On the technical side, BRIAN hopes to be a highly scalable and flexible language in the following manner:
     \begin{itemize}
     \item Since relationships between cellular components are ultimately stored in an adjacency matrix, adding new relationships between existing components has a very low storage and computational cost. Additionally, adding new components is performed by simply expanding the existing matrix. As only a single relationship between two components can exist (i.e. unknown, activates, or inhibits), a matrix of ints is sufficient to represent the BRN.
 
-    \item BRIAN accommodates all existing proteins, genes, phenotypes (as well as an [other] category for components such as small RNAs or metabolites) and allows interactions between all these types freely. The language also does not strictly define the type of relationship between two cellular nodes: while the expected relationship types are abstract interactions (e.g. activation, inhibition), if these are not known, the biochemical modification (e.g. phosphorylation, ubiquitination, acetylation, methylation) are also accepted.
+    \item BRIAN accommodates all existing proteins, genes, phenotypes (as well as an [other] category for components such as small RNAs or metabolites) and allows interactions between all these types freely. The language also does not strictly define the type of relationship between two cellular nodes and can consider the downstream effects of activation and inhibition between any two components.
 
     \end{itemize}
 
@@ -75,25 +76,26 @@
 Sample Program $\#1$:
     \\Input:
     \begin{verbatim}
-    dotnet run txt/Example1.txt
+    Run with: dotnet run txt/Example1.txt (from /lang)
+    or: dotnet run --project lang/lang.fsproj lang/txt/Example1.txt (from /code)
         Example1.txt file:
         "Protein_A activates gene_b
         gene_b activates Protein_A
         gene_b activates Protein_C
         Protein_C inhibits Protein_D
         Protein_D inhibits Protein_D"
-    \end{verbatim} 
+    \end{verbatim}
     Output (in addition to graphical output):
     \begin{verbatim}
     Successful parse.
-    New found relations: 
+    New found relations:
     Protein_A activates Protein_A
     Protein_A activates Protein_C
     Protein_A inhibits Protein_D
     gene_b activates gene_b
     gene_b inhibits Protein_D
     \end{verbatim}
-    
+
 Sample Program $\#2$:
     \\Input:
     \begin{verbatim}
@@ -104,12 +106,13 @@ Sample Program $\#2$:
         Protein2 inhibits gene3
         *phenotype2 activates gene3
         #unknown_siRNA inhibits gene4-a"
-    \end{verbatim} 
+    \end{verbatim}
     Output (in addition to graphical output):
     \begin{verbatim}
     Successful parse.
-    New found relations: (None)
-    \end{verbatim} 
+    New found relations:
+    No new relations found
+    \end{verbatim}
 
 Sample Program $\#3$:
     \\Input:
@@ -119,43 +122,39 @@ Sample Program $\#3$:
         "A activates B
         B inhibits C
         A activates C"
-    \end{verbatim} 
+    \end{verbatim}
     Output (in addition to graphical output):
     \begin{verbatim}
     Successful parse.
-    New found relations: (None)
+    New found relations:
     Contradiction Found At: A activates C
-    \end{verbatim} 
+    \end{verbatim}
 
 Sample Program $\#4$:
     \\Input:
     \begin{verbatim}
     dotnet run txt/Query.txt
-        Example3.txt file:
+        Example4.txt file:
         "A activates b
-        b inhibits *c
-        *c ? A"
-    \end{verbatim} 
+        C inhibits b
+        C ? A
+        A inhibits d"
+    \end{verbatim}
     Output (in addition to graphical output):
     \begin{verbatim}
-    Successful parse.
-    New found relations: 
-    A inhibits *c
-    
+    Successful parse
+    New found relations:
+    No new relations found
     ----------------
-    Expected new relations for *c activates A
-    Contradiction Found At: *c activates A
-    
-    Expected new relations for *c inhibits A
-    A activates A
-    b activates A
-    b activates b
-    *c inhibits b
-    *c activates *c
-    
-    Conclusion: *c may inhibit A or have no effect
-    \end{verbatim} 
-    
+    Expected new relations for C activates A
+    Contradiction Found At: C activates b
+
+    Expected new relations for C inhibits A
+    C activates d
+
+    Conclusion: C may inhibit A or have no effect
+    \end{verbatim}
+
 \section*{\textit{Language Concepts}}
 A typical user is expected to be familiar with cellular components, such as proteins, genes and phenotypes, which serve as primitives for BRIAN. When the user inputs a text file describing observed relationships between components, BRIAN constructs a fitting BRN and infers new relationships between the variables. In essence, BRIAN’s evaluator is designed to consider all possible combinations between the identified primitives and offer any new found ones as a result.\\
 
@@ -171,42 +170,40 @@ The combining forms of cellular components mainly include more abstract interact
 & | \; \langle protein \rangle \; \\
 & | \; \langle phenotype \rangle \; \\
 & | \; \langle other \rangle \\
-\langle relation \rangle ::=& 
+\langle relation \rangle ::=&
 \; \langle variable \rangle \textvisiblespace \: \mbox{activates} \: \textvisiblespace \langle variable \rangle \\
 & | \; \langle variable \rangle \textvisiblespace \: \mbox{inhibits} \: \textvisiblespace \langle variable \rangle \\
 & | \; \langle variable \rangle \: ? \: \langle variable \rangle \\
 \langle sequence \rangle ::=& \: {\langle relationship \rangle}^{+}
 \end{align*}
-\vspace{8cm}
-
 
 \section*{\textit{Semantics}}
 
 \begin{center}
 \begin{tabular}{ M{4cm}|M{4cm}|m{6cm} }
- Syntax & Abstract Syntax & \centering\arraybackslash Meaning \\ 
+ Syntax & Abstract Syntax & \centering\arraybackslash Meaning \\
  \hline
-  \verb|<gene>| & \verb|Variable| of \verb|string| &\verb|Gene| is a primitive of type \verb|string|. \verb|Gene| is a subtype of the primary \verb|Variable| primitive and must start with a lowercase letter. \\ 
+  \verb|<gene>| & \verb|Variable| of \verb|string| &\verb|Gene| is a primitive of type \verb|string|. \verb|Gene| is a subtype of the primary \verb|Variable| primitive and must start with a lowercase letter. \\
  \hline
- \verb|<protein>| & \verb|Variable| of \verb|string| &\verb|Protein| is a primitive of type \verb|string|. \verb|Protein| is a subtype of the primary \verb|Variable| primitive and must start with a capital letter. \\ 
+ \verb|<protein>| & \verb|Variable| of \verb|string| &\verb|Protein| is a primitive of type \verb|string|. \verb|Protein| is a subtype of the primary \verb|Variable| primitive and must start with a capital letter. \\
  \hline
- \verb|<phenotype>| & \verb|Variable| of \verb|string| &\verb|Phenotype| is a primitive of type \verb|string|. \verb|Phenotype| is a subtype of the primary \verb|Variable| primitive and must start with a “$*$” character. \\ 
+ \verb|<phenotype>| & \verb|Variable| of \verb|string| &\verb|Phenotype| is a primitive of type \verb|string|. \verb|Phenotype| is a subtype of the primary \verb|Variable| primitive and must start with a “$*$” character. \\
  \hline
- \verb|<other>| & \verb|Variable| of \verb|string| &\verb|Other| is a primitive of type \verb|string|. \verb|Other| is a subtype of the primary \verb|Variable| primitive and must start with a “$\#$” character. \\ 
+ \verb|<other>| & \verb|Variable| of \verb|string| &\verb|Other| is a primitive of type \verb|string|. \verb|Other| is a subtype of the primary \verb|Variable| primitive and must start with a “$\#$” character. \\
  \hline
-  \verb|<v1>␣| activates \verb|␣<v2>| & \verb|Activation| of \verb|Variable * Variable| & \verb|Activation| indicates the relationship between two given variables, specifically \verb|v1| activates \verb|v2|. \verb|Activation| is a subtype of the primary \verb|Relation| combining form.\\ 
+  \verb|<v1>␣| activates \verb|␣<v2>| & \verb|Activation| of \verb|Variable * Variable| & \verb|Activation| indicates the relationship between two given variables, specifically \verb|v1| activates \verb|v2|. \verb|Activation| is a subtype of the primary \verb|Relation| combining form.\\
  \hline
- \verb|<v1>␣| inhibits \verb|␣<v2>| & \verb|Inhibition| of \verb|Variable * Variable| & \verb|Inhibition| indicates the relationship between two given variables, specifically \verb|v1| inhibits \verb|v2|. \verb|Inhibition| is a subtype of the primary \verb|Relation| combining form.\\ 
+ \verb|<v1>␣| inhibits \verb|␣<v2>| & \verb|Inhibition| of \verb|Variable * Variable| & \verb|Inhibition| indicates the relationship between two given variables, specifically \verb|v1| inhibits \verb|v2|. \verb|Inhibition| is a subtype of the primary \verb|Relation| combining form.\\
  \hline
- \verb|<v1>| \verb|?| \verb|<v2>| & \verb|Query| of \verb|Variable * Variable| & \verb|Query| indicates the user's request to find out about the relationship between two given variables, \verb|v1| and \verb|v2|. \verb|Query| is a subtype of the primary \verb|Relation| combining form.\\ 
+ \verb|<v1>| \verb|?| \verb|<v2>| & \verb|Query| of \verb|Variable * Variable| & \verb|Query| indicates the user's request to find out about the relationship between two given variables, \verb|v1| and \verb|v2|. \verb|Query| is a subtype of the primary \verb|Relation| combining form.\\
  \hline
- \verb|<Relation>|$^+$ & \verb|List| of \verb|Relation| & \verb|Sequence| contains a list of all \verb|Relations| present in a given BRN. \verb|Sequence| must take at least one \verb|Relation| to be valid.\\ 
+ \verb|<Relation>|$^+$ & \verb|List| of \verb|Relation| & \verb|Sequence| contains a list of all \verb|Relations| present in a given BRN. \verb|Sequence| must take at least one \verb|Relation| to be valid.\\
  \hline
 \end{tabular}
 \end{center}
 
 \vspace{1cm}
-\textbf{About Evaluation} \\ 
+\textbf{About Evaluation} \\
 
 Aside from the program which is contained in a .txt file, no additional input is provided. \\
 
@@ -214,7 +211,7 @@ To understand how evaluation works for BRIAN, let’s consider our first example
 \begin{verbatim}
     eval test1.txt
 \end{verbatim}
-BRIAN parses the text file and classifies the cellular components into their appropriate primitive types. 
+BRIAN parses the text file and classifies the cellular components into their appropriate primitive types.
 
 \begin{verbatim}
     Example1.txt file:
@@ -225,7 +222,7 @@ BRIAN parses the text file and classifies the cellular components into their app
         Protein_D inhibits Protein_D"
 \end{verbatim}
 
-After parsing, BRIAN compiles a list of all unique cellular components, which in our case we have four: 
+After parsing, BRIAN compiles a list of all unique cellular components, which in our case we have four:
 \begin{verbatim}
 [Protein "Protein_A"; Gene "gene_b"; Protein "Protein_C"; Protein "Protein_D"]
 \end{verbatim}
@@ -244,7 +241,7 @@ $$P = \begin{pmatrix}
     \includegraphics[width=0.5\textwidth]{BNR1}
 \end{figure}
 
-Using the P matrix, we are now ready to search for new relationships using matrix multiplication. The next step is using matrix multiplication to find new relationships. This operates under the biological logic of: 
+Using the P matrix, we are now ready to search for new relationships using matrix multiplication. The next step is using matrix multiplication to find new relationships. This operates under the biological logic of:
 
 \begin{verbatim}
     (A activates B, B activates C) implies A activates C
@@ -330,7 +327,7 @@ $$P' = \begin{pmatrix}
 
 From this new matrix, the following relationships are found:
  \begin{verbatim}
-    New found relations: 
+    New found relations:
     Protein_A activates Protein_A
     Protein_A activates Protein_C
     gene_b activates gene_b
@@ -347,7 +344,7 @@ $$P' = \begin{pmatrix}
 
 From the final matrix, the following relationships are found:
  \begin{verbatim}
-    New found relations: 
+    New found relations:
     Protein_A activates Protein_A
     Protein_A activates Protein_C
     Protein_A inhibits Protein_D
@@ -361,9 +358,10 @@ From the final matrix, the following relationships are found:
 Further development for BRIAN as a programming language would look as following:
 
 \begin{itemize}
-    \item Addition of other relationships: Currently, BRIAN covers relatively abstract relations, i.e. activation and inhibition. But sometimes experimental data can only contain biochemical modifications (e.g., phosphorylation, ubiquitination, acetylation, methylation) from which a more abstract relationship can be derived --- in the future, this would be a challenging but a helpful feature to implement.
+    \item Addition of other relationships: Currently, BRIAN covers relatively abstract relations, i.e. activation and inhibition. But sometimes experimental data can only contain biochemical modifications (e.g., phosphorylation, ubiquitination, acetylation, methylation) from which a more abstract relationship can be derived through comparison of multiple downstream outcomes --- in the future, this would be a challenging but a helpful feature to implement.
     \item Graphical representation of variables and relationships: The future version of BRIAN should be able to offer a visual display of the network given by the user. Given enough time to explore and experiment with F\#'s graphical libraries, this feature is sure to give BRIAN a nice visual flair and make the relationship predictions more intuitive to the user.
 \end{itemize}
+Both of these features were included in the original draft. However, during development of BRIAN the authors felt developing a query feature (which was not in the original draft) would be a more valuable addition. Development of this feature was therefore prioritized with the remaining time.
 
 % DO NOT DELETE ANYTHING BELOW THIS LINE
 %---------------------------------------------------------------------------------------------------------
