@@ -16,6 +16,7 @@ let main args =
         printfn "Successful parse"
         // after evalutation, eval should print all the new relationships found
         // from the original BRN provided by the user
+        // or if a contradiction is found
         // eval will also print new relationships that result
         // from a query (provided in the input) being sunstituted for an activation or inhibition relationship
         // as well as which of these relationships is possible (or if only no relationship is possible)
