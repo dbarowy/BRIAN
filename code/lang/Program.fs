@@ -14,7 +14,11 @@ let main args =
     match parse text with
     | Some ast ->
         printfn "Successful parse"
-        //printfn "%A" ast
+        // after evalutation, eval should print all the new relationships found
+        // from the original BRN provided by the user
+        // eval will also print new relationships that result
+        // from a query (provided in the input) being sunstituted for an activation or inhibition relationship
+        // as well as which of these relationships is possible (or if only no relationship is possible)
         let m = eval ast
         0
     | None ->
