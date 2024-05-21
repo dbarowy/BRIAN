@@ -12,12 +12,14 @@ open MathNet.Numerics.LinearAlgebra
 * in the BRN.
 * 
 * @pre: path to text file containing the BRN in string form
-* @return: depending on identified relationships in the supplied BRN,
-*         - newfound relationships between between all variables;
+* @return: depending on identified relationships in the supplied BRN, prints:
+*         - newfound relationships between all variables in the BRN;
 *         - if a user supplies a query between a pair of variables,
-*           possible relationships between them;
+*           the possible types of relationships between them as well as downstream 
+*           effects if these relationships were added to the BRN
 *         - identification of a contradictory relationship between
 *           a pair of relationships in the supplied BRN.
+*     Or tells the user that the input provided was invalid (i.e. unable to be parsed)
 *)
 [<EntryPoint>]
 let main args =
