@@ -3,6 +3,22 @@ open Evaluator
 open System
 open MathNet.Numerics.LinearAlgebra
 
+(**
+* This program takes a text file input given to `dotnet run`
+* and attempts to parse and evaluate the BRN described in the file.
+* Upon successful evaluation, it prints out all newfound relationships 
+* from the BRN or if evaluation is unsuccessful, supplies the user
+* with a helpful message, which could include discovery of a contradiction
+* in the BRN.
+* 
+* @pre: path to text file containing the BRN in string form
+* @return: depending on identified relationships in the supplied BRN,
+*         - newfound relationships between between all variables;
+*         - if a user supplies a query between a pair of variables,
+*           possible relationships between them;
+*         - identification of a contradictory relationship between
+*           a pair of relationships in the supplied BRN.
+*)
 [<EntryPoint>]
 let main args =
     (* Check that input is given *)
@@ -14,11 +30,8 @@ let main args =
     match parse text with
     | Some ast ->
         printfn "Successful parse"
-        // after evalutation, eval should print all the new relationships found
-        // from the original BRN provided by the user
-        // or if a contradiction is found
         // eval will also print new relationships that result
-        // from a query (provided in the input) being sunstituted for an activation or inhibition relationship
+        // from a query (provided in the input) being substituted for an activation or inhibition relationship
         // as well as which of these relationships is possible (or if only no relationship is possible)
         let m = eval ast
         0
